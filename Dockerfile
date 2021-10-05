@@ -11,6 +11,6 @@ RUN pip3 install -r requirements.txt
 COPY . .
 
 # Using expose: https://dev.to/ejach/how-to-deploy-a-python-flask-app-on-heroku-using-docker-mpc
-EXPOSE 5000
+# EXPOSE 5000
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
