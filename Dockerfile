@@ -13,4 +13,5 @@ COPY . .
 # Using expose: https://dev.to/ejach/how-to-deploy-a-python-flask-app-on-heroku-using-docker-mpc
 # EXPOSE 5000
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+# # https://www.youtube.com/watch?v=4eQqcfQIWXw
+ENTRYPOINT [ "python3", "app.py" ]
