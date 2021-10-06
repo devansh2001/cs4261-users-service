@@ -9,11 +9,14 @@ app = Flask(__name__)
 def setup():
     DATABASE_URL = os.environ['DATABASE_URL']
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    # https://stackoverflow.com/a/43634941
+    conn.autocommit = True
+
     cursor = conn.cursor()
     try:
 
         cursor.execute('''
-        CREATE TABLE users (
+        CREATE TABLE IF NOT EXISTS users (
             user_id varchar(64),
             fname varchar(256),
             lname varchar(256),
@@ -28,8 +31,9 @@ def setup():
     except psycopg2.Error:
         print('Error occurred while creating table')
     
-    cursor.execute('INSERT INTO users (fname, lname) VALUES (Devansh, Ponda)')
-    cursor.execute('INSERT INTO users (fname, lname) VALUES (Tusheet, Goli)')
+    cursor.execute('INSERT INTO users (fname, lname) VALUES (%s, %s)', ['Devansh', 'Ponda'])
+    cursor.execute('INSERT INTO users (fname, lname) VALUES (%s, %s)', ['Tusheet', 'Goli'])
+    
     cursor.execute('SELECT * FROM users')
     print(cursor.fetchall())
     # res = cursor.fetchall()
