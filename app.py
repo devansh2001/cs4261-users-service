@@ -1,8 +1,34 @@
 from logging import debug
 from flask import Flask, request
 import os
+import psycopg2
 
 app = Flask(__name__)
+
+# https://devcenter.heroku.com/articles/heroku-postgresql#connecting-in-python
+def setup():
+    DATABASE_URL = os.environ['DATABASE_URL']
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE users (
+        user_id varchar(64),
+        fname varchar(256),
+        lname varchar(256),
+        phone_number varchar(15),
+        venmo_id varchar(128),
+        user_location varchar(64),
+        email varchar(256),
+        password varchar(64),
+        user_type varchar(32)
+    );
+    ''')
+    # res = cursor.fetchall()
+    # print(res)
+
+    # Check if table exists
+
+setup()
 
 @app.route('/health-check')
 def health_check():
