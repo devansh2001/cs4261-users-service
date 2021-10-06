@@ -14,4 +14,4 @@ COPY . .
 # EXPOSE 5000
 
 # # https://www.youtube.com/watch?v=4eQqcfQIWXw
-ENTRYPOINT [ "python3", "app.py" ]
+CMD [ "python3", "app.py" ]
