@@ -50,10 +50,11 @@ except psycopg2.Error:
 def health_check():
     return {'status': 'OK', 'code': '200'}
 
-@app.route('/create-user')
+@app.route('/create-user', methods=['POST'])
 def create_user():
     # https://stackoverflow.com/a/67461897
     data = request.get_json()
+    print(data)
     fname = data['fname']
     lname = data['lname']
     phone_number = data['phone_number']
@@ -62,15 +63,15 @@ def create_user():
     email = data['email']
     password = data['password']
     user_type = data['user_type']
-    user_id = uuid.uuid4()
+    user_id = str(uuid.uuid4())
     query = '''
         INSERT INTO users (user_id, fname, lname, phone_number, venmo_id, user_location, email, password, user_type)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     '''
 
     cursor.execute(query, [user_id, fname, lname, phone_number, venmo_id, user_location, email, password, user_type])
     
-    return {'status': 201}
+    return {'status': 201, 'user_id': user_id}
 
 @app.route('/get-user/<user_id>')
 def get_user(user_id):
@@ -80,18 +81,19 @@ def get_user(user_id):
 
     cursor.execute(query, [str(user_id)])
     res = cursor.fetchall()
+    print(res)
     if (len(res) == 0):
         return {'status': 200, 'user': None}
 
     user = {
-        'fname': res[0]['fname'],
-        'lname': res[0]['lname'],
-        'email': res[0]['email'],
-        'userId': res[0]['userId'],
-        'venmo_id': res[0]['venmo_id'],
-        'phone_number': res[0]['phone_number'],
-        'user_type': res[0]['user_type'],
-        'user_location': res[0]['user_location']
+        'user_id': res[0][0],
+        'fname': res[0][1],
+        'lname': res[0][2],
+        'email': res[0][6],
+        'venmo_id': res[0][4],
+        'phone_number': res[0][3],
+        'user_type': res[0][8],
+        'user_location': res[0][5]
     }
     return {'status': 200, 'user': user}
 
