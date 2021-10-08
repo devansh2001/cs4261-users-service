@@ -97,8 +97,12 @@ def get_user(user_id):
     }
     return {'status': 200, 'user': user}
 
-@app.route('/delete-user/<user_id>')
+@app.route('/delete-user/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
+    query = '''
+        DELETE FROM users WHERE users.user_id=%s
+    '''
+    cursor.execute(query, [str(user_id)])
     return {'status': 200}
 
 @app.route('/authenticate')
