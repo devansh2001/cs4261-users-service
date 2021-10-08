@@ -3,6 +3,7 @@ from flask import Flask, request
 import os
 import psycopg2
 import uuid
+import json
 
 app = Flask(__name__)
 
@@ -54,7 +55,6 @@ def health_check():
 def create_user():
     # https://stackoverflow.com/a/67461897
     data = request.get_json()
-    print(data)
     fname = data['fname']
     lname = data['lname']
     phone_number = data['phone_number']
@@ -81,7 +81,6 @@ def get_user(user_id):
 
     cursor.execute(query, [str(user_id)])
     res = cursor.fetchall()
-    print(res)
     if (len(res) == 0):
         return {'status': 200, 'user': None}
 
@@ -107,6 +106,23 @@ def delete_user(user_id):
 
 @app.route('/authenticate')
 def authenticate():
+    # https://stackoverflow.com/a/33843524
+    email = request.headers['email']
+    password = request.headers['password']
+    query = '''
+        SELECT * FROM users WHERE users.email=%s
+    '''
+    cursor.execute(query, [email])
+    res = cursor.fetchall()
+    if len(res) == 0:
+        # Change status code
+        return {'status': 100}
+    
+    passwordInTable = res[0][7]
+
+    if passwordInTable != password:
+        return {'status': 100}
+    
     return {'status': 200}
 
 # https://www.youtube.com/watch?v=4eQqcfQIWXw
