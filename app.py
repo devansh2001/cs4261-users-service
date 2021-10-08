@@ -2,6 +2,7 @@ from logging import debug
 from flask import Flask, request
 import os
 import psycopg2
+import uuid
 
 app = Flask(__name__)
 
@@ -44,6 +45,7 @@ except psycopg2.Error:
 
     # Check if table exists
 
+
 @app.route('/health-check')
 def health_check():
     return {'status': 'OK', 'code': '200'}
@@ -60,29 +62,38 @@ def create_user():
     email = data['email']
     password = data['password']
     user_type = data['user_type']
-
+    user_id = uuid.uuid4()
     query = '''
-        INSERT INTO user (fname, lname, phone_number, venmo_id, user_location, email, password, user_type)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO users (user_id, fname, lname, phone_number, venmo_id, user_location, email, password, user_type)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     '''
 
-    cursor.execute(query, [fname, lname, phone_number, venmo_id, user_location, email, password, user_type])
+    cursor.execute(query, [user_id, fname, lname, phone_number, venmo_id, user_location, email, password, user_type])
     
     return {'status': 201}
 
 @app.route('/get-user/<user_id>')
 def get_user(user_id):
     query = '''
-        SELECT * FROM user where user_id=
-    ''' + user_id
+        SELECT * FROM users where users.user_id=%s
+    '''
 
-    cursor.execute(query)
+    cursor.execute(query, [str(user_id)])
     res = cursor.fetchall()
     if (len(res) == 0):
         return {'status': 200, 'user': None}
 
-    
-    return {'status': 200}
+    user = {
+        'fname': res[0]['fname'],
+        'lname': res[0]['lname'],
+        'email': res[0]['email'],
+        'userId': res[0]['userId'],
+        'venmo_id': res[0]['venmo_id'],
+        'phone_number': res[0]['phone_number'],
+        'user_type': res[0]['user_type'],
+        'user_location': res[0]['user_location']
+    }
+    return {'status': 200, 'user': user}
 
 @app.route('/delete-user/<user_id>')
 def delete_user(user_id):
