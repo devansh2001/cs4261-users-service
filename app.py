@@ -8,7 +8,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 # https://stackoverflow.com/a/64657739
-CORS(app)
+CORS(app, support_credentials=True)
 # https://devcenter.heroku.com/articles/heroku-postgresql#connecting-in-python
 
 DATABASE_URL = os.environ['DATABASE_URL']
@@ -48,10 +48,9 @@ except psycopg2.Error:
 
     # Check if table exists
 
-
 @app.route('/health-check')
 def health_check():
-    return {'status': 'OK', 'code': '200'}
+    return {'status': 200}
 
 @app.route('/create-user', methods=['POST'])
 def create_user():
@@ -125,7 +124,17 @@ def authenticate():
     if passwordInTable != password:
         return {'status': 100}
     
-    return {'status': 200}
+    user = {
+        'user_id': res[0][0],
+        'fname': res[0][1],
+        'lname': res[0][2],
+        'email': res[0][6],
+        'venmo_id': res[0][4],
+        'phone_number': res[0][3],
+        'user_type': res[0][8],
+        'user_location': res[0][5]
+    }
+    return {'status': 200, 'user': user}
 
 # https://www.youtube.com/watch?v=4eQqcfQIWXw
 if __name__ == '__main__':
