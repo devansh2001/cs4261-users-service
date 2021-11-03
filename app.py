@@ -65,13 +65,14 @@ def create_user():
     email = data['email']
     password = data['password']
     user_type = data['user_type']
+    profile_picture = data['profile_picture']
     user_id = str(uuid.uuid4())
     query = '''
-        INSERT INTO users (user_id, fname, lname, phone_number, venmo_id, user_location, email, password, user_type)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO users (user_id, fname, lname, phone_number, venmo_id, user_location, email, password, profile_picture_url, user_type)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     '''
 
-    cursor.execute(query, [user_id, fname, lname, phone_number, venmo_id, user_location, email, password, user_type])
+    cursor.execute(query, [user_id, fname, lname, phone_number, venmo_id, user_location, email, password, profile_picture, user_type])
     
     return {'status': 201, 'user_id': user_id}
 
@@ -93,7 +94,8 @@ def get_user(user_id):
         'email': res[0][6],
         'venmo_id': res[0][4],
         'phone_number': res[0][3],
-        'user_type': res[0][8],
+        'user_type': res[0][9],
+        'profile_picture': res[0][8],
         'user_location': res[0][5]
     }
     return {'status': 200, 'user': user}
