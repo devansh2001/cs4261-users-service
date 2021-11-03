@@ -18,10 +18,6 @@ conn.autocommit = True
 
 cursor = conn.cursor()
 try:
-
-    cursor.execute('''
-        DROP TABLE IF EXISTS users;
-    ''')
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id varchar(64) PRIMARY KEY,
