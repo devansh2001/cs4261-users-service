@@ -29,7 +29,8 @@ try:
         email varchar(256),
         password varchar(64),
         profile_picture_url varchar(1024),
-        user_type varchar(32)
+        user_type varchar(32),
+        points integer
     );
     ''')
 except psycopg2.Error:
@@ -64,8 +65,8 @@ def create_user():
     profile_picture = data['profile_picture']
     user_id = str(uuid.uuid4())
     query = '''
-        INSERT INTO users (user_id, fname, lname, phone_number, venmo_id, user_location, email, password, profile_picture_url, user_type)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO users (user_id, fname, lname, phone_number, venmo_id, user_location, email, password, profile_picture_url, user_type, points)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 50)
     '''
 
     cursor.execute(query, [user_id, fname, lname, phone_number, venmo_id, user_location, email, password, profile_picture, user_type])
@@ -92,8 +93,47 @@ def get_user(user_id):
         'phone_number': res[0][3],
         'user_type': res[0][9],
         'profile_picture': res[0][8],
-        'user_location': res[0][5]
+        'user_location': res[0][5],
+        'points': res[0][10]
     }
+    return {'status': 200, 'user': user}
+
+@app.route('/add-points/<user_id>/<points_diff>', methods=['POST'])
+def add_points(user_id, points_diff):
+    query = '''
+        SELECT * FROM users where users.user_id=%s
+    '''
+
+    cursor.execute(query, [str(user_id)])
+    res = cursor.fetchall()
+    if (len(res) == 0):
+        return {'status': 200, 'user': None}
+    print("TESTINGH")
+    # print(type(user))
+    # print(user['points'], type(user['points']))
+    print(points_diff, type(points_diff))
+
+    user = {
+        'user_id': res[0][0],
+        'fname': res[0][1],
+        'lname': res[0][2],
+        'email': res[0][6],
+        'venmo_id': res[0][4],
+        'phone_number': res[0][3],
+        'user_type': res[0][9],
+        'profile_picture': res[0][8],
+        'user_location': res[0][5],
+        'points': res[0][10]
+    }
+
+    user['points'] = user['points'] + int(points_diff)
+    
+    query = '''
+        UPDATE users SET points=%s where users.user_id=%s
+    '''
+    cursor.execute(query, [user['points'], str(user_id)])
+
+    
     return {'status': 200, 'user': user}
 
 @app.route('/delete-user/<user_id>', methods=['DELETE'])
